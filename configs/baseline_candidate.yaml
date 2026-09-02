@@ -1,0 +1,76 @@
+status: proposed_first_run
+warning: >-
+  These values are reconstruction choices. The paper did not report exact
+  model revisions, evaluation software, metric variants, or run settings.
+
+scope:
+  first_model_only: true
+  reason: Qwen3-4B is the smallest model reported in the paper.
+
+model:
+  id: Qwen/Qwen3-4B-Base
+  revision: 906bfd4
+  status: proposed
+  reason: >-
+    This is the latest commit visible in the official model history before the
+    paper submission date. It is not confirmed as the authors' revision.
+  access_check: required_before_run
+
+evaluation:
+  framework: EleutherAI/lm-evaluation-harness
+  revision: d021bf8
+  release: v0.4.9.1
+  status: proposed
+  reason: >-
+    This release preceded the paper submission and supported Qwen thinking-mode
+    controls. The paper did not name an evaluation framework.
+  record_all_returned_metrics: true
+  choose_metric_before_comparison: true
+  shots:
+    value: 0
+    status: proposed
+  batch_size:
+    value: null
+    status: open_measure_safely
+  sequence_length:
+    value: null
+    status: open
+  tasks:
+    - paper_label: HellaSwag
+      candidate_name: hellaswag
+      required_metrics: [acc, acc_norm]
+    - paper_label: PIQA
+      candidate_name: piqa
+      required_metrics: [acc, acc_norm]
+    - paper_label: ARC-E
+      candidate_name: arc_easy
+      required_metrics: [acc, acc_norm]
+    - paper_label: ARC-C
+      candidate_name: arc_challenge
+      required_metrics: [acc, acc_norm]
+    - paper_label: WinoGrande
+      candidate_name: winogrande
+      required_metrics: [acc]
+    - paper_label: WT2
+      candidate_name: wikitext
+      required_metrics: [word_perplexity, byte_perplexity, bits_per_byte]
+    - paper_label: PTB
+      candidate_name: null
+      status: custom_evaluation_required_until_verified
+
+acceptance:
+  accuracy_absolute_points: 0.5
+  perplexity_relative_percent: 2.0
+  policy: >-
+    Compare only a metric declared before examining the paper match. If most
+    values fail, revise model/evaluation assumptions; do not begin QAQ training.
+
+artifacts_required:
+  - raw_result_json
+  - per_sample_output_when_supported
+  - exact_command
+  - environment_lock
+  - hardware_record
+  - dataset_revisions
+  - metric_selection_note
+

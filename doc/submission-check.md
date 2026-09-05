@@ -43,6 +43,15 @@ raw outputs, two complete repeats and all guarded launch logs were checked.
 
 Exact commands, timestamps and exit statuses:
 `results/completion-20260905T193817Z/{checks,independent-checks,clean-source-tests}.log`.
+
+Current-state recheck at `cc23dd5` (the prior documentation follow-up is already
+committed): `results/completion-20260905T200400Z-cc23dd5/AUDIT.md` maps every
+requirement to inspected evidence. All 20 tests, raw-result/hash/route checks and
+archive plus 617 current-file checksums pass again. Supplemental causal and tied-
+weight accounting checks pass; two audit-helper errors and their corrections are
+retained, with no implementation or experiment changes. This new audit is not in
+the earlier immutable preservation archive. No required work remains.
+
 The long-tokenizer warning during full WT2 text tokenization is not a model run:
 only frozen 512-token windows enter scoring. No samples or caps were changed.
 

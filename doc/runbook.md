@@ -160,15 +160,22 @@ loading is ordinary startup, not on-demand CPU/GPU weight streaming. Adaptive
 and matched controls pay identical8-bit probes and6-bit scoring budgets, but
 reconstruct FP16 matrices. No packed low-bit resident-memory/speed assertion.
 
-Raw files are intentionally not Git artifacts; protect the results bundle and
-HF cache alongside code. A fresh clone alone cannot reproduce recorded evidence.
-No automated backup or clean-environment installation was performed here.
+Raw files are intentionally not Git artifacts. The616 core-v1 files plus PDF
+now have a checksum-verified local archive and complete Git bundle at
+`~/qaq-preservation/core-v1-a703e66-20260905T193817Z/`. Exact contents, checksums,
+restore instructions and follow-up source/log snapshot:
+[submission-check.md](submission-check.md). A fresh clone alone is insufficient.
+The original HF cache and venv are not copied. Same-filesystem preservation is
+not off-host disaster recovery; no clean-host installation was performed.
 
 ## Last Verified
 
-- Date:2026-09-05 UTC (router continuation).
-- Verified commands:20-test suite, table arithmetic, baseline/comparison CPU
-  audits; all collect/train/verify/evaluation commands listed above, with raw logs.
+- Date:2026-09-05 UTC (fresh completion/preservation audit after router continuation).
+- Verified again:20-test suite in current and clean-source checkouts, table
+  arithmetic, baseline/comparison/full-artifact CPU audits, exact regeneration
+  of576 final examples, archive member hashes and three-file restore smoke.
+  Logs: `results/completion-20260905T193817Z/`. Original GPU commands above retain
+  their own raw logs; no GPU job was repeated for this follow-up.
 - Known unverified commands: none presented as verified setup commands for a
   new host; clean installation/portability and restore on another host remain
   untested. No further GPU job is needed for the existing evidence audit.

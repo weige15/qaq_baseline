@@ -112,3 +112,37 @@ low-bit performance and remote backup were not required/tested and are not
 claimed. Preserve the local ignored result/model/PDF bundle separately from Git.
 There is no PR/push/CI requirement for this local objective; no PR was created or
 push performed. Runtime goal-accounting state is separate from this evidence audit.
+
+## Fresh continuation audit and preservation — 2026-09-05 UTC
+
+Revalidated **every requirement in the checklist above** against current files
+at `a703e66`, rather than accepting this document's earlier completion status.
+All five PDF pages and the five other prerequisite files were read again before
+any changes. No implementation, frozen configuration, router or score changed.
+
+Fresh evidence: `results/completion-20260905T193817Z/`.
+
+- `checks.log`: all20 tests pass; fixed-stage and matched comparison raw metrics,
+  profiles/budgets/repeats recomputed; all12 original model files, three final
+  dataset sources, checkpoint and651 tensors rehashed; actual saved8/lower/block
+  logits checked; all20 guarded GPU jobs and both refusals audited; table
+  arithmetic and `git diff --check` pass.
+- `independent-checks.log`: all576 final examples rederived exactly from pinned
+  raw datasets/tokenizer/seed; current configs equal frozen copies; runtime
+  versions match; all72 weighted block sizes match actual stored q tensors.
+- `clean-source-tests.log`: all20 tests also pass in a pristine `git archive`
+  extraction of `a703e66`, using the existing venv. This is not clean-host testing.
+- `method-review.md`, `report-review.md`: independent read-only reviews find no
+  mandatory gap. Explicit coverage limit:304 observed routed projection/precision
+  equalities, not exhaustive756; final traces still cover every executed projection.
+- `preservation.log`, `restore-smoke.log`: all616 core-v1 files plus PDF preserved
+  and every archive member hash verified; Git bundle verified; three-file restore
+  smoke passes. Archive and restore details: [doc/submission-check.md](doc/submission-check.md).
+
+The scientific conclusion is unchanged: narrow adaptive benefit against the
+preregistered static surrogate, negative results against random/fixed4 on WT2.
+No further experiment is needed or authorized. **All required work products are
+complete.** Same-filesystem preservation and untested new-host installation are
+explicit limits, not evidence of remote backup or portability. No `update_goal`
+tool is available in this session; no replacement goal or manual accounting
+mutation was used.

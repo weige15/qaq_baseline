@@ -30,7 +30,9 @@ Runtime: Python3.12.3, torch2.5.1+cu121, Transformers5.16.1 and the full package
 record in `results/core-v1/frozen/`. `pyproject.toml` is the historical toy
 manifest, **not** a complete inference installer. A clean installation has not
 been verified. Raw results, PDF and checkpoints are git-ignored and must be
-preserved separately; code alone is not the evidence bundle.
+preserved separately; code alone is not the evidence bundle. A checksum-verified
+local archive now exists; see [preservation and restore details](doc/submission-check.md).
+It is on the same filesystem, not an off-host backup.
 
 ## Code and documentation
 

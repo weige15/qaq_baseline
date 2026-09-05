@@ -60,7 +60,7 @@ Authoritative settings: `configs/core_protocol.json`, `EVALUATION_PROTOCOL.md`,
 | MC normalization | Total continuation log-likelihood / answer Unicode character count, excluding added leading space |
 | Determinism | Seed1729, four CPU threads, FP16 SDPA, deterministic torch, TF32 off, `CUBLAS_WORKSPACE_CONFIG=:4096:8` |
 | Runtime | Python3.12.3; torch2.5.1+cu121; Transformers5.16.1; NumPy1.26.4; SciPy1.17.1; PyArrow24.0.0 |
-| Hardware | One idle, process-free NVIDIA RTX3090 per job,24GiB; new jobs used GPU6 except static repeat2 on GPU7 |
+| Hardware | One idle, process-free NVIDIA RTX3090 per job,24GiB; fixed-stage jobs used physical GPUs1/2/6; integration/router jobs used6 except static repeat2 on7 |
 
 The original freeze contains full package lock, CPU/RAM/driver details, source
 file hashes, tokenizer IDs, indices, prompts and revision manifests. Every GPU
@@ -270,7 +270,11 @@ protocol and user authorization, not further tuning against these final samples.
 ## 5. Artifact and command map
 
 All paths below are local to this repository. Raw results/checkpoints and the PDF
-are git-ignored but present on disk; preserve them with the code for handoff.
+are git-ignored but present on disk. A fresh CPU completion audit and checksum-
+verified local archive now preserve them with Git history; see
+[doc/submission-check.md](doc/submission-check.md) for archive/restore details.
+This same-filesystem copy is not an off-host backup. No new experiment or score
+change was made in this follow-up.
 
 | Evidence | Location |
 |---|---|

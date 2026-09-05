@@ -51,6 +51,22 @@ and `configs/core_protocol.json`. Historical entries below are not current comma
   reviewer finding retained in `results/core-v1/meta/router-protocol-review-full.md`;
   synthetic normalization regression test passes.18 total CPU tests pass.
 
+- D-028 **Measured; supersedes D-025's pending status**: A1 (166,104 parameters)
+  passed first; A2/A3 not fitted.31/32 unique dev routes, with16 attention/19
+  FFN blocks varying; real-model feature/profile/causal/weight checks pass.
+  `ROUTER_RESULTS.md` and `results/core-v1/router-verify/`.
+- D-029 **Measured final decision**: all three matched controls have identical
+  six-bit weighted budgets and exactly repeated raw samples. Adaptive-minus-
+  static WT2 mean NLL=-0.00796553 (95% CI[-0.01275022,-0.00302018]); MC normalized
+  guardrails pass. However adaptive-minus-random WT2 NLL=+0.12904102 and adaptive
+  also loses to fixed4 on WT2. This is a narrow surrogate-static result, not
+  general quality/efficiency superiority. End the bounded study; no further
+  search. `REPLICATION_REPORT.md`, `results/core-v1/comparison-gate.json`.
+- D-030 **Safety evidence**: random repeat2 was refused by the immediate GPU6
+  recheck, exit4, before launching a model. Fresh clean check and separate retry
+  log retained. Static repeat2 used safe GPU7; other new jobs used GPU6, serially.
+  No other user's process was signaled and no runtime package was changed.
+
 ## Historical proposal log
 
 Statuses:

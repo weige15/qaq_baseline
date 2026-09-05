@@ -1,68 +1,114 @@
 # Prompt-to-artifact completion audit
 
-**Goal status: NOT COMPLETE.** Audited after the fresh baseline and full-model
-integration stages. A green stage verifier is not a whole-goal verifier.
+**Work-product status: VERIFIED COMPLETE**, after inspecting the actual local
+artifacts and rerunning CPU evidence checks on2026-09-05 UTC. This is completion
+of the bounded functional goal, **not** confirmation of QAQ's paper table or a
+general adaptive-quality advantage. No further GPU experiment is required.
 
-Concrete success criteria: a functional query-dependent **Qwen/Qwen3-4B**,
-frozen evaluation, fresh FP16/4/8 results on WT2/HellaSwag/ARC-C, one signed/scaled
-4/6/8 checkpoint, independent attention/FFN routing, disjoint router training,
-unseen learned routing variation, fair equal-bit comparisons and an evidence-
-separated `REPLICATION_REPORT.md` with all raw commands/config/tests/failures.
+## Concrete deliverables
 
-| Explicit requirement / gate | Actual evidence inspected | Status / uncovered work |
+1. One frozen Qwen/Qwen3-4B setup with immutable data/model revisions, all metrics,
+   exact commands, software and hardware records.
+2. Fresh, repeatable FP16/fixed8/fixed4 on WT2, HellaSwag and ARC-Challenge.
+3. One signed/scaled checkpoint with exact8 and real4/6 reconstructions, separately
+   controlled attention and FFN blocks.
+4. A small actually trained router on separate data; deterministic, noncollapsed
+   unseen query-dependent profiles and genuine changed model weights/outputs.
+5. Matched-bit adaptive/random/query-independent static comparisons, with fixed
+   endpoints and every raw result retained; no final-driven search.
+6. All configurations, tests, routing distributions, failures, reproducible
+   commands, and an evidence-separated `REPLICATION_REPORT.md`.
+7. Preserve explicit scope/GPU safety gates and stop rules throughout.
+
+## Prompt-to-artifact checklist
+
+Paths below are relative to the repo. `R` means `results/core-v1/` in this table.
+**Passing a stage verifier was not accepted as proof of the other rows.**
+
+| Explicit requirement, command or gate | Actual evidence inspected | Finding |
 |---|---|---|
-| Read `references/QAQ.pdf` before code | all5 pages read, including page4; SHA256 in protocol and `results/core-v1/meta/paper-extracted.txt` | Done |
-| Read `PAPER_AUDIT.md`, `DECISIONS.md`, `FIRST_GPU_RUN.md`, `configs/baseline_candidate.yaml`, `scripts/audit_table.py` before code | inspected before changes; historical criteria explicitly superseded | Done |
-| Table1 means page4 five-method/three-model comparison; no exact reproduction | `EVALUATION_PROTOCOL.md`, `results/core-v1/meta/table-audit.txt` | Done; arithmetic audit not experimental evidence |
-| (1) Freeze model/revision/tokenizer/data/metrics/software/commands/hardware | `configs/core_protocol.json`; `results/core-v1/frozen/{protocol,model_manifest,data_manifest,environment,freeze_hashes}.json`; tokenized examples, nvidia-smi/cpu/ram/pip-freeze; per-job commands/hardware | Done for baseline and integration; router commands/settings still to freeze |
-| (2) New FP16/fixed8/fixed4 on WT2/HellaSwag/ARC-C; every returned metric | six `results/core-v1/baseline-{fp16,fixed8,fixed4}-r{1,2}/` directories,576 examples each; all metrics/raw token losses; `BASELINE_RESULTS.md` | Done on explicitly bounded frozen subsets, not full splits |
-| Baseline repeatability and internal sanity before proceeding | `scripts/check_baselines.py`, `results/core-v1/baseline-gate.json`; all six raw sets reaggregated against frozen IDs/counts/token masks | Passed: each pair's raw samples identical; PPL ratios1.003354/1.100161; all declared checks pass |
-| (3) Single signed/scaled stored model supporting4/6/8 | `src/qaq/model.py`, `src/qaq/quantization.py`; `results/core-v1/integration/quantized_model.pt` (4,525,416,138 bytes) | Done; no variants persisted; signed int8 +FP32 scales with top-bit midpoints |
-| Full8 exactly chosen8; lower4/6 genuinely change model output | integration gate252/252 actual projection equalities, full8 exact logits; raw lower-bit finite logit changes on3 probes; exact checkpoint hash | Passed real-model gate, not toy evidence only |
-| (4) Independent attention and FFN selection |72-block mapping; attention0-only4 and FFN0-only4 actual-model outputs change; `tests/test_model.py` tests isolation | Done;36 independent attention and36 FFN blocks |
-| Weight integration gate: revise if failing | initial rotary-buffer failure retained; diagnosis/fix;15 CPU tests;651 persisted tensor hashes and six-profile exact model reload | Passed after minimal repair without relaxed tolerance |
-| (5) Train small query router on separate data | **No fit/cache/router checkpoint exists** | **Missing**. Freeze train/dev document IDs/hashes, decontamination and bounded attempts first |
-| (6) Unseen query profiles vary and >=2 actual levels | Only manual test profiles exist | **Missing**. Manual profiles or quota-enforced diversity are not learned adaptation |
-| Router gate: bounded predeclared noncollapse repairs | max3 attempts and dev-only selection rule in frozen evaluation protocol; exact attempts not yet declared | **Missing**; no training may precede attempt declaration |
-| (7) Adaptive vs fixed4/fixed8/random/query-independent static at same average bits | baseline anchors exist; integration verified equal block sizes within type | **Missing** adaptive/random/static outputs and actual per-query weighted-budget equality |
-| Negative-result stop vs matched static | WT2 paired95% CI and MC guardrail frozen before adaptive scores | Rule recorded; comparison **missing**. No further final-score-driven search allowed |
-| Causal routing (context only; same profile across options; no WT2 suffix leak) | scorer context-only API and perturbation unit test; WT2 prefix mask/causal shift test | API verified; **actual trained-router perturbation test missing** |
-| (8) Raw results/commands/configs/tests/routing/failures | `results/core-v1/` freeze, six baseline runs,3 smoke runs, integration, per-job source snapshots/logs; failure ledger below | Partial; router training/profiles/distributions/comparisons **missing** |
-| Final `REPLICATION_REPORT.md`, paper/choices/findings/unknowns separated | **File does not exist** | **Missing**; stage reports cannot substitute |
-| Exclusions: no on-demand, other models, PTB/full table, dynamic batching, async/kernel work | current source, exact logged model commands; historical broader proposals labeled superseded | Preserved so far; final source/job audit still required |
-| Small reviewed external code only; tested/rerun locally; no old result evidence | tiny attributed harness prompt rules; local tests; new `core-v1` run namespace; old logs excluded | Done so far; no external implementation or results transplanted |
-| `scripts/gpu_preflight.sh` before every GPU job; one safe GPU; no interference | ten successful job logs (3 smoke+6 baseline+1 integration); one refused launch; mock safety tests; each job remaps exactly one device | All current jobs guarded and serial; no process kill/reset |
-| Pause before unexpectedly long sweep/license decision/expansion | smoke runtime projection (roughly2–3min/full job),30min caps, public requested Apache-2.0 checkpoint card, bounded integration job273s | No expanded scope or license acceptance; future router runtime must be bounded |
-| Mark complete only after all required evidence inspected | this audit explicitly lists missing5/6/7/8 and final report | **Do not mark complete** |
+| Read `references/QAQ.pdf` before code | All5 freshly extracted pages read; SHA256 `f15f1d6c…c37c8e`; archived `R/meta/paper-extracted.txt`; page4 definition checked | Done |
+| Read `PAPER_AUDIT.md`, `DECISIONS.md`, `FIRST_GPU_RUN.md`, `configs/baseline_candidate.yaml`, `scripts/audit_table.py` first | All five read before edits in this continuation; historical Base/paper-matching/loading proposals explicitly superseded | Done |
+| Table1 means page4 five methods/three models; do not exactly reproduce it | `EVALUATION_PROTOCOL.md`, final report§1; `python scripts/audit_table.py` output `R/meta/table-audit-final.txt` | Done; arithmetic is not model evidence |
+| (1) Freeze exact Qwen target/revision/tokenizer | `configs/core_protocol.json`, `R/frozen/model_manifest.json`; final audit rehashed all12 original files | Done: literal `Qwen/Qwen3-4B`, `1cfa9a…df60c`, not Base |
+| (1) Data revisions/indices/tokenization/metrics | Frozen protocol, all3 source hashes,576 tokenized examples and source manifests; data audit retokenized all224 router windows | Done; declared bounded subsets, not full-split claims |
+| (1) Software versions/commands/hardware | Full frozen environment/pip list/CPU/RAM/driver records; every job `command.json`/source snapshot and guarded shell log; runtime version assertions | Done; same RTX3090 model, one device/job; static repeat2 on7, most new jobs on6 |
+| (2) Fresh FP16/fixed8/fixed4 on all three tasks | Six `R/baseline-{fp16,fixed8,fixed4}-r{1,2}/` runs,576 samples each; `BASELINE_RESULTS.md` | Done; only fresh core-v1 results used |
+| (2) Every returned metric; no posthoc metric matching | Raw token losses and full result dictionaries; all five WT2/five MC metric keys checked; primary meanNLL/acc_norm fixed before scores | Done; missing metric and altered prediction mutation tests reject artifacts |
+| Baseline gate: repeatable and internally sensible before continuation | `scripts/check_baselines.py` rerun directly and through comparison audit; all sample pairs identical, exact metrics, declared sanity thresholds pass | Passed; no relaxed criteria |
+| (3) One stored signed/scaled4/6/8 model | `R/integration/quantized_model.pt`, `src/qaq/{quantization,model}.py`; final file/state audit | Done: one4.525GB int8/scaled model, no saved precision variants |
+| Full-width reconstruction exact to chosen8 | Original252/252 full-width equality checks and source; raw `reference8`/`integrated8` logits independently compared again; checkpoint651 hashes rechecked | Passed exact equality, not tolerance/proxy only |
+| Lower precisions actually change model computation | Original4/6 raw logit deltas positive; all signed-code/zero-group/rounding tests; real trained mixed-profile logits versus4/8 | Passed; lower width changes actual weights, not only metadata |
+| (4) Separate attention and FFN precision |72-block model map; original single-attention/single-FFN raw outputs rechecked; isolation unit test; real final projection traces | Done:36 attention+36 FFN |
+| Integration gate: revise failing representation, not loosen exactness | Earlier rotary-state failure/diagnosis/fix retained in `doc/debug-report.md` and meta logs;651 tensor hashes/actual logits pass now | Passed after recorded repair |
+| (5) Train small query-dependent router on separate data | `R/router-training/A1/router.pt`, train-only normalizers,224 feature/target cache,300 losses, command/source; only192 train articles used for gradients | Done:166,104 parameters, seed31416, real training |
+| Freeze train/dev splits and bounded attempts before fitting | Commit `c052ca3`, tracked `configs/router_data_lock.json`, `ROUTER_PROTOCOL.md`, `R/router-frozen/`;32 dev articles, full article/text/token provenance | Done; zero title/text and32-token overlaps with final as declared |
+| No final leakage for training/selection/normalization | Recomputed normalizers/target stats/static mean costs from train only; label/cache IDs map to frozen train/dev; scorer receives context only | Done; final access only deterministic exclusion and later locked evaluation |
+| Router gate: revise only from predeclared attempts on dev collapse | A1 loss decreases and passes declared variation gate; selection record A2/A3 not run; absent A2/A3 directories; no final-driven changes | Passed first attempt; bounded policy obeyed |
+| (6) Different unseen queries yield different profiles | Dev31/32 profiles; final WT2 63/64, HellaSwag251/256, ARC-C255/256; all saved per-block distributions recomputed | Done; actual learned query variation, not manual profiles |
+| (6) At least two precision levels genuinely used | All3 levels per query;304 actual executed projection/precision reconstructions checked; final traces count every252 projection per forward | Done; quotas force diversity and this is explicitly disclosed |
+| Causality/repeatability under suffix/answer changes | Real GPU scoring API perturbation files and logits in `R/router-verify/`; context-only callback; unit and real repeat tests | Passed; options/suffix/gold cannot alter route |
+| Feature-only ablation and constant-feature correctness | Train-mean features yield one dev profile; variable-length constant-coordinate test; reviewer P1 fixed before fit | Passed; masking prevents untrained length-feature amplification |
+| (7) Adaptive versus fixed4/fixed8 | Same scorer/sample set; original fresh endpoints plus integrated exact endpoint smoke; all deltas/CIs retained | Done; endpoints correctly labeled4/8, not claimed equal to6 |
+| (7) Adaptive/random/static same average bits | Six full `R/comparison-*-r{1,2}/` runs; per-query parameter counts/traces; exact independent weighted checks | Done:21,799,895,040 bits/3,633,315,840 projection weights=6 each |
+| Fair query-independent static and random controls | Static recomputed as minimum mean train local NMSE; deterministic random seed/hash reproduced; static one profile; same quota solver | Done; static is surrogate-optimal, not proven downstream-optimal |
+| Include probe work/exclusions/scales, not only unweighted bits | Same28,155 probe/147,626 scoring-input tokens and raw probe features across matched controls;389,152,256 FP16 exclusions;113,541,120 scale bytes | Done; logical scoring6, token-work6.320342; no physical low-bit claim |
+| Final repeats and all returned results | `scripts/check_router_results.py` recomputes each raw metric, decision/cost/profile and demands exact repeats | Passed all three matched pairs; no filtered samples |
+| Negative-result stop, no hidden search | Locked primary static WT2 CI[-.012750,-.003020] and MC guards pass; random/fixed4 negative findings retained prominently; A1 never revised | Study stopped; narrow positive against static is not general success |
+| (8) Raw results/commands/configurations/tests/distributions/failures | All stage dirs/logs/source snapshots;20 final CPU tests; full route matrices; both guard refusals and prior test failures retained | Done; raw artifacts remain local and git-ignored |
+| Final `REPLICATION_REPORT.md` separates statements/choices/findings/questions | Inspected report§1 paper,§2 choices,§3 measurements including negative controls,§4 failures/unknowns,§5 command/artifact map | Done; stage reports not used as substitutes |
+| Exclude on-demand loading,8B models,PTB,full table,dynamic batching,async/kernel optimization | Executed commands/configs and unchanged source snapshots; only Qwen3-4B loaded, ordinary startup only; final report states exclusions | Preserved |
+| External code only small reviewed parts; rerun here; no old results | Attributed tiny lm_eval prompt rules only; library APIs otherwise; all numerical evidence scoped to fresh core-v1 jobs | Preserved |
+| `scripts/gpu_preflight.sh` before EVERY GPU job; one safe GPU; no interference | Final audit matched20 successful GPU logs to physical-device command records, immediate guard checks,30min timeout and exit0; both refusals exit4 | Passed; serial launches; no kill/reset/signaling other processes |
+| Pause before long sweeps/model-license/scope change | Smoke projections before224-context/full576 jobs; own peak<=13.05GB; every full job<10min; predeclared repetitions only; no new license terms/packages/scope | Preserved; no unexpectedly long sweep |
+| Named earlier progress evidence files | `BASELINE_RESULTS.md`, `INTEGRATION_RESULTS.md` retained; this completion audit now replaces the earlier pending checklist | Done |
+| Only mark complete when every required artifact exists | This full table, final tests, raw-artifact/source/guard audit and report all inspected, not inferred from effort or green summary alone | Work product complete; no unverified required experimental item remains |
 
-## Coverage and failure checks
+## Verification commands and their coverage
 
-- Independent checkpoint audit in `results/core-v1/meta/checkpoint-audit.txt`
-  rehashes all12 frozen original model/tokenizer files, all3 dataset source files
-  and the4.525GB quantized checkpoint. It reruns the baseline gate and confirms
-  that deleting a returned metric or changing a raw prediction is rejected.
-- Baseline verifier checks frozen hashes, IDs, counts, prefix target lengths,
-  raw-to-aggregate metrics, all required metric keys, finite values, fixed-module
-  counts, predictions and repeat tolerances. It explicitly does **not** verify
-  router/integration/comparison/final-report requirements.
-- Integration gate checks real weights, raw logits, persisted tensor hashes and
-  independent profiles. It explicitly does **not** verify training, learned
-  query variation or matched-budget benefit.
-- Test suite contains6 historical NumPy tests,6 new quantizer/evaluator tests,
-  2 GPU safety tests and1 actual tiny-Qwen integration test.15 passing tests do
-  not cover the missing router deliverables.
-- Failures retained: initial HellaSwag expected-whitespace typo (test fixed,
-  preprocessing unchanged); CPU rotary-buffer checkpoint mismatch (diagnosed,
-  serializer fixed); one GPU2 availability race (guard refused launch, exit4,
-  later clean recheck). No failed model scores hidden or reused as success.
+From repo root in the recorded `~/.venv`, with GPU hidden for CPU commands:
 
-## Next concrete action
+```bash
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python -m unittest discover -s tests -v
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_baselines.py
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_router_results.py
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python results/core-v1/meta/final-artifact-audit.py
+python scripts/audit_table.py
+git diff --check
+```
 
-Freeze router train/dev data and at most3 exact feature/loss attempts **before
-fitting**. Collect bounded teacher local-error labels, train small MLP, test
-unseen dev variation/causality/repeatability, then compare once on frozen final
-examples against strong trained-static/random controls at exactly equal actual
-weighted bits. Account for the fixed8 context feature-pass overhead explicitly;
-consider giving all matched controls the same probe so total computation-bit
-accounting is equal as well. Stop with a negative result if the locked primary
-comparison fails. Finish report and audit only after the remaining evidence exists.
+Actual outputs: `R/meta/tests-final.txt` (20/20), `R/meta/router-comparison-audit.log`,
+`R/meta/final-artifact-audit.txt`, `R/meta/table-audit-final.txt`, plus earlier
+baseline gate output. The final artifact audit rehashes the original model/data,
+all651 checkpoint tensors, checks raw integration logits and checks current
+inference sources against **every** recorded job source snapshot. It explicitly
+verifies both refusal logs and confirms only A1 was fitted. No new GPU job was
+needed or used for final inspection.
+
+Coverage boundaries:
+
+- Unit tests cover specific code invariants, not benchmark benefit or proof of
+  separate training data on their own.
+- The baseline verifier covers only fixed stage; integration verifier covers
+  actual weights/outputs but not learned queries or quality.
+- The comparison verifier covers real data/profile/metric/budget/repeat/CI
+  artifacts, not paper-reading, scope/license compliance or report honesty.
+- The final source/log audit covers artifact integrity and guarded executions,
+  not the scientific sufficiency of the local-error surrogate.
+- Those uncovered surfaces were inspected explicitly in the table above and
+  report. No verifier's success flag was accepted as whole-goal proof.
+
+## Qualified conclusion and residual risks
+
+The narrow static comparison passes, yet random six-bit and fixed4 WT2 results
+are better than adaptive. This is a completed **functional** reproduction with
+strong negative controls, not reproduction of the paper's fixed8-quality,
+performance or full-table claims. No additional tuning is authorized.
+
+Remaining scientific unknowns (surrogate validity, domain shift, semantic or
+pretraining contamination, window dependence, exact paper setup) are disclosed,
+not missing required artifacts. Clean-host installation, portability, physical
+low-bit performance and remote backup were not required/tested and are not
+claimed. Preserve the local ignored result/model/PDF bundle separately from Git.
+There is no PR/push/CI requirement for this local objective; no PR was created or
+push performed. Runtime goal-accounting state is separate from this evidence audit.

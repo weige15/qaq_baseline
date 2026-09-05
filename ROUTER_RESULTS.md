@@ -33,6 +33,8 @@ per-job `command.json`, source snapshots and corresponding `logs/*.log`.
 All GPU stages guarded/serial on a process-free RTX3090 (physical GPU6); no
 other processes interrupted.18 CPU tests pass. No runtime packages changed.
 
-**Next:** the locked final comparison (adaptive/static/random, two runs each)
-on the unchanged576-example final set. A negative result ends the search.
-No final equal-bit quality conclusion is claimed in this stage report.
+**Final follow-through:** all six locked comparison runs are now complete and
+exact-repeat verified. A1 narrowly passes the preregistered static comparison,
+but random and even fixed4 have better WT2 perplexity. No further attempt was
+trained. See `REPLICATION_REPORT.md` for all comparisons and the qualified
+conclusion; this stage report alone does not establish final quality benefit.

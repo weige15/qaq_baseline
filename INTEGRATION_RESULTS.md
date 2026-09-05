@@ -1,5 +1,9 @@
 # Stored-model integration — passed
 
+> Historical stage receipt: the pending router work described below has since
+> completed. See [REPLICATION_REPORT.md](REPLICATION_REPORT.md) for the final
+> findings and [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md) for whole-goal evidence.
+
 Preregistration: `71d1102`, [INTEGRATION_PROTOCOL.md](INTEGRATION_PROTOCOL.md).
 Fresh command through preflight:
 `PYTHONPATH=src CUBLAS_WORKSPACE_CONFIG=:4096:8 TOKENIZERS_PARALLELISM=false bash scripts/gpu_preflight.sh --run timeout --signal=TERM 30m python scripts/check_integration.py`.

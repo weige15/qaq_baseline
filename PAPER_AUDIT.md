@@ -1,5 +1,10 @@
 # QAQ paper audit
 
+> Paper observations below remain source context. The active user's narrower
+> functional goal supersedes the proposed reproduction and acceptance rules:
+> see [EVALUATION_PROTOCOL.md](EVALUATION_PROTOCOL.md). No paper-number matching,
+> on-demand loader, additional models or PTB is part of the active work.
+
 Source: **QAQ: Query-adaptive Mixed-precision Quantization for Large Language Models**, NeurIPS 2025 MLForSys workshop, five pages.
 
 ## Confirmed from the paper

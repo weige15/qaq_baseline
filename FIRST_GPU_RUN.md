@@ -1,5 +1,9 @@
 # First GPU run: baseline identification only
 
+> Historical proposal. The active core goal supersedes this paper-matching/Base
+> plan with [EVALUATION_PROTOCOL.md](EVALUATION_PROTOCOL.md); do not execute the
+> broader task list below for the active goal.
+
 Do not train a router in the first GPU session. The first question is whether an identified public checkpoint and evaluation setup can reproduce the paper's unquantized Qwen3-4B scores closely enough to support later comparisons.
 
 ## Known before the run

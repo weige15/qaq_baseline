@@ -1,5 +1,10 @@
 # QAQ replication starter
 
+> **Active work:** [EVALUATION_PROTOCOL.md](EVALUATION_PROTOCOL.md) supersedes the
+> historical plan below: Qwen/Qwen3-4B only, bounded fresh FP16/4/8 and adaptive
+> comparisons, no Table-1 matching or on-demand loading. Track verified evidence
+> in [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md).
+
 This project turns the five-page QAQ paper into a staged, evidence-based replication effort. It does not claim an exact reproduction: the paper does not release code and omits several choices that can materially change the result.
 
 The recommended first target is **Qwen3-4B-Base only**. That is a proposed scope choice because it is the smallest model in the paper. The 8B models should wait until the 4B work shows both a matching baseline and real use of more than one precision.

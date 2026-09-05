@@ -1,0 +1,75 @@
+{
+  "protocol_id": "qaq-core-v1",
+  "status": "frozen_before_new_results",
+  "model": {
+    "id": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "dtype": "float16",
+    "attention": "sdpa",
+    "trust_remote_code": false,
+    "chat_template": false
+  },
+  "data": {
+    "wikitext2": {
+      "id": "Salesforce/wikitext",
+      "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "file": "wikitext-2-raw-v1/test-00000-of-00001.parquet",
+      "count": 64,
+      "window_tokens": 512,
+      "prefix_tokens": 128
+    },
+    "hellaswag": {
+      "id": "Rowan/hellaswag",
+      "revision": "218ec52e09a7e7462a5400043bb9a69a41d06b76",
+      "file": "data/validation-00000-of-00001.parquet",
+      "count": 256
+    },
+    "arc_challenge": {
+      "id": "allenai/ai2_arc",
+      "revision": "210d026faf9955653af8916fad021475a3f00453",
+      "file": "ARC-Challenge/test-00000-of-00001.parquet",
+      "count": 256
+    }
+  },
+  "evaluation": {
+    "implementation": "local causal likelihood scorer; prompt rules reviewed against installed lm_eval 0.4.13",
+    "batch_size": 1,
+    "num_fewshot": 0,
+    "max_sequence_tokens": 2048,
+    "seed": 1729,
+    "sample_selection": "sorted random.Random(1729).sample(range(N), count), reset RNG per task",
+    "wikitext_join": "two newlines between every raw row, including empty rows; tokenize without BOS/EOS; nonoverlapping complete windows; discard final incomplete window",
+    "wikitext_metrics": ["nll_sum", "scored_tokens", "mean_nll", "token_perplexity", "mean_window_nll_stderr"],
+    "multiple_choice_metrics": ["acc", "acc_stderr", "acc_norm", "acc_norm_stderr", "count"],
+    "primary_metrics": {"wikitext2": "mean_nll", "hellaswag": "acc_norm", "arc_challenge": "acc_norm"},
+    "acc_norm_denominator": "Unicode character count of answer text, excluding added leading space",
+    "continuation_encoding": "tokenize context+space+answer jointly; require tokenized context to be an exact prefix; fail rather than silently move boundary",
+    "causality": "router may inspect context only; one profile reused for all options; WT2 router sees first 128 tokens and only remaining 384 tokens are scored",
+    "routing_probe": "fixed8 block hidden features from a context-only prepass, if adaptive; explicitly account for extra pass without claiming speed or memory savings"
+  },
+  "quantization": {
+    "format": "signed int8 two's-complement with FP32 absmax scales per row and contiguous input group",
+    "group_size": 128,
+    "max_code": 127,
+    "rounding": "torch.round ties-to-even; clamp -127..127",
+    "lower_reconstruction": "s=8-b; ((q.int16 >> s).float * 2**s + (2**s-1)/2) * scale; cast to FP16; s=0 exactly q*scale",
+    "zero_group_scale": 0,
+    "precisions": [4, 6, 8],
+    "modules": "all seven Linear weights per layer: attention q/k/v/o and FFN gate/up/down",
+    "excluded": "embeddings, lm_head, norms, biases stay FP16",
+    "compute": "dequantized FP16 torch linear; not an integer kernel or claimed physical low-bit GPU footprint"
+  },
+  "gates": {
+    "smoke_examples_per_task": 2,
+    "repeatability": "two fresh processes per fixed mode on identical complete frozen sample set; identical predictions; abs mean_nll delta <= 1e-5; max per-choice summed logprob delta <= 1e-3",
+    "baseline_sanity": "all outputs finite; FP16 acc_norm > 0.30 on both MC tasks; fixed8 abs acc_norm delta <= 0.08 and perplexity ratio 0.8..1.25 vs FP16; fixed4 acc_norm > 0.25 and perplexity ratio 0.5..3 vs FP16",
+    "baseline_failure": "pause with exact mismatch; no router training or threshold relaxation",
+    "integration": "every integrated full-width tensor torch.equal to independent fixed8 reference; q/scales reload exact; model logits differ at4 and6 vs8; independent attention/FFN selection tested",
+    "job_walltime_limit_minutes": 30,
+    "pause_if_projected_full_eval_minutes_above": 30,
+    "max_router_attempts": 3,
+    "router_attempt_policy": "declare exact train/dev splits, features, loss, and three attempts after baseline/integration gates but before any router fit; revise only on dev collapse, never final scores",
+    "matched_budget": "adaptive, random, static exactly 12 blocks each of4/6/8 within each of36 attention and36 FFN blocks per query; report block and parameter-weighted bits including FP16 exclusions separately; fixed4/8 are endpoints, not equal-cost comparators",
+    "adaptive_success": "paired bootstrap 95% CI for adaptive-minus-static WT2 mean_nll entirely below0, neither MC acc_norm regresses by more than0.02; report all other deltas and CIs; otherwise stop with negative or inconclusive result without more search"
+  }
+}

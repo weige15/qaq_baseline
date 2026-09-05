@@ -1,5 +1,32 @@
 # Decision log
 
+## Active core goal (supersedes historical proposals D-001–D-013)
+
+Authoritative settings and preregistered gates: [EVALUATION_PROTOCOL.md](EVALUATION_PROTOCOL.md)
+and `configs/core_protocol.json`. Historical entries below are not current commands.
+
+- D-015 **Frozen choice**: literal user target `Qwen/Qwen3-4B` at
+  `1cfa9a7208912126459214e8b04321603b3df60c`, not Base. Exact-revision card is
+  Apache-2.0; no new access terms accepted. No attempt to match Table1.
+- D-016 **Frozen choice**: custom causal likelihood scorer, batch1/zero-shot;
+  WT2 prefix-conditioned token PPL on64 windows; HellaSwag/ARC-C256 seeded examples
+  each; all metrics retained, primary meanNLL/acc_norm declared before new scores.
+- D-017 **Frozen choice**: grouped128 signed int8 RTN with top-bit midpoint
+  reconstruction at4/6/8; fixed quantizers and future adaptive share this family.
+  No quantizer search for paper matching. All new results under `results/core-v1`.
+- D-018 **Scope**: no loading mechanism, 8B models, PTB, full table, dynamic
+  batching, async loading or custom performance kernels. Older proposals deferred.
+- D-019 **Gate**: two complete fresh runs per fixed mode; exact metrics/gates
+  in protocol. No router work until stable and internally sensible.
+- D-020 **Planned, not trained**: causal context-only fixed8 feature prepass,
+  train-only local distillation-error MLP and equal per-type precision quotas;
+  exact training choices must be locked after integration before fitting.
+- D-021 **Safety repair**: preflight now rejects any selected compute process,
+  nonzero utilization, recheck change or failed process query, not just low memory.
+  No other user's process is signaled. Mock safety tests cover refusal paths.
+
+## Historical proposal log
+
 Statuses:
 
 - **Reported**: stated in the paper or an official source.

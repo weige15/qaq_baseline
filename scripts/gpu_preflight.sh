@@ -27,8 +27,8 @@ if ! command -v nvidia-smi >/dev/null 2>&1; then
   exit 2
 fi
 
-query="nvidia-smi --query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits"
-mapfile -t gpu_rows < <(nvidia-smi --query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits)
+gpu_state="$(nvidia-smi --query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu --format=csv,noheader,nounits)"
+mapfile -t gpu_rows <<< "$gpu_state"
 if (( ${#gpu_rows[@]} == 0 )); then
   echo "No NVIDIA GPUs were returned." >&2
   exit 2
@@ -40,19 +40,24 @@ for row in "${gpu_rows[@]}"; do
   IFS=',' read -r index name total used free util <<< "$row"
   index="${index// /}"
   free="${free// /}"
-  if [[ "$free" =~ ^[0-9]+$ ]] && (( free >= minimum_free_mib )) && (( free > best_free )); then
-    best_index="$index"
-    best_free="$free"
+  util="${util// /}"
+  if [[ "$free" =~ ^[0-9]+$ && "$util" == "0" ]] && (( free >= minimum_free_mib )) && (( free > best_free )); then
+    # A mostly empty GPU can still belong to someone. Fail closed on query errors.
+    processes="$(nvidia-smi --id="$index" --query-compute-apps=pid --format=csv,noheader,nounits)"
+    if [[ -z "${processes//[[:space:]]/}" ]]; then
+      best_index="$index"
+      best_free="$free"
+    fi
   fi
 done
 
 if [[ -z "$best_index" ]]; then
-  echo "No GPU has at least ${minimum_free_mib} MiB free." >&2
+  echo "No idle, process-free GPU has at least ${minimum_free_mib} MiB free." >&2
   printf '%s\n' "${gpu_rows[@]}" >&2
   exit 3
 fi
 
-# Print current state for a human audit. The process list is informational only.
+# Print current state for a human audit; selection also excludes compute processes.
 if [[ "$mode" != "index-only" ]]; then
   echo "Current GPU state:"
   printf '%s\n' "${gpu_rows[@]}"
@@ -63,9 +68,11 @@ if [[ "$mode" != "index-only" ]]; then
 fi
 
 # Recheck the selected physical device immediately before a possible launch.
-selected_free="$(nvidia-smi --id="$best_index" --query-gpu=memory.free --format=csv,noheader,nounits | tr -d ' ' | head -n 1)"
-if [[ ! "$selected_free" =~ ^[0-9]+$ ]] || (( selected_free < minimum_free_mib )); then
-  echo "Selected GPU ${best_index} no longer has ${minimum_free_mib} MiB free; stop and recheck." >&2
+selected_free="$(nvidia-smi --id="$best_index" --query-gpu=memory.free --format=csv,noheader,nounits | tr -d ' ')"
+selected_util="$(nvidia-smi --id="$best_index" --query-gpu=utilization.gpu --format=csv,noheader,nounits | tr -d ' ')"
+selected_processes="$(nvidia-smi --id="$best_index" --query-compute-apps=pid --format=csv,noheader,nounits)"
+if [[ ! "$selected_free" =~ ^[0-9]+$ || "$selected_util" != "0" || -n "${selected_processes//[[:space:]]/}" ]] || (( selected_free < minimum_free_mib )); then
+  echo "Selected GPU ${best_index} changed availability; stop and recheck." >&2
   exit 4
 fi
 
@@ -82,7 +89,7 @@ if [[ "$mode" == "run" ]]; then
     echo "--run requires a command." >&2
     exit 2
   fi
-  exec env CUDA_VISIBLE_DEVICES="$best_index" "$@"
+  exec env CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES="$best_index" "$@"
 fi
 
 echo "To launch one command after reviewing this state:"

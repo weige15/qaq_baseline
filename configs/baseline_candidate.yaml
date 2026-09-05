@@ -1,4 +1,6 @@
-status: proposed_first_run
+# Historical proposal, superseded for the active goal by core_protocol.json.
+# Do not use its Base checkpoint, broad task list, or paper-matching gates.
+status: historical_superseded_for_core_goal
 warning: >-
   These values are reconstruction choices. The paper did not report exact
   model revisions, evaluation software, metric variants, or run settings.

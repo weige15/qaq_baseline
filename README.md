@@ -4,6 +4,11 @@
 > historical plan below: Qwen/Qwen3-4B only, bounded fresh FP16/4/8 and adaptive
 > comparisons, no Table-1 matching or on-demand loading. Track verified evidence
 > in [COMPLETION_AUDIT.md](COMPLETION_AUDIT.md).
+>
+> **Verified now:** [fresh baseline pairs](BASELINE_RESULTS.md) and
+> [stored-model/block-precision integration](INTEGRATION_RESULTS.md) pass.
+> **Remaining:** router training, unseen learned routing, matched-bit controls,
+> and `REPLICATION_REPORT.md`. The goal is not complete.
 
 This project turns the five-page QAQ paper into a staged, evidence-based replication effort. It does not claim an exact reproduction: the paper does not release code and omits several choices that can materially change the result.
 

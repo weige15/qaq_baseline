@@ -25,6 +25,20 @@ and `configs/core_protocol.json`. Historical entries below are not current comma
   nonzero utilization, recheck change or failed process query, not just low memory.
   No other user's process is signaled. Mock safety tests cover refusal paths.
 
+- D-022 **Measured**: six new baseline jobs pass all fixed-mode repeatability
+  and internal-sanity gates. `BASELINE_RESULTS.md` and
+  `results/core-v1/baseline-gate.json`; raw samples identical within each pair.
+- D-023 **Measured**: full-model integration gate passes252 projection equalities,
+  exact fixed8 logits, genuine4/6 and separate attention/FFN effects, and651
+  persisted tensor hash matches after reload. `INTEGRATION_RESULTS.md`.
+- D-024 **Measured repair**: exact checkpoint reload requires preserving actual
+  nonpersistent rotary frequencies, not just the weight state dict. The same
+  quantized checkpoint now includes both small buffers; `doc/debug-report.md`.
+  Never count active FP16 reconstruction caches as packed low-bit storage.
+- D-025 **Next, not executed**: freeze train/dev splits and up to3 concrete MLP
+  feature/objective attempts. No trained router, final adaptive quality result,
+  or claim of equal-bit benefit exists yet. Leave the goal incomplete.
+
 ## Historical proposal log
 
 Statuses:

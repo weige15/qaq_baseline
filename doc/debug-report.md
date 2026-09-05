@@ -74,4 +74,4 @@ Store the two small rotary buffers in the SAME quantized checkpoint and restore 
 ```bash
 CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python -m unittest discover -s tests -v
 ```
-Expected: all15 tests pass, including exact reload outputs at4/6/8. Then run the separately logged full Qwen integration gate. No claim of full-model success until that gate exists.
+Verified after the minimal serializer fix: all15 tests pass in `results/core-v1/meta/tests-integration-fixed.txt`, including exact reload outputs at4/6/8. The separately logged full Qwen gate subsequently passed in `results/core-v1/integration/gate.json`:651 state tensor hashes and all six profiles' complete logits reload exactly. See `INTEGRATION_RESULTS.md`. Neither test nor integration success establishes router quality.

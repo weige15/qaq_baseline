@@ -39,6 +39,18 @@ and `configs/core_protocol.json`. Historical entries below are not current comma
   feature/objective attempts. No trained router, final adaptive quality result,
   or claim of equal-bit benefit exists yet. Leave the goal incomplete.
 
+- D-026 **Frozen before fitting**: `ROUTER_PROTOCOL.md`, `configs/router_protocol.json`
+  and `configs/router_data_lock.json` fix192 WT2 train articles and32 development
+  articles, with title/text and32-token-span decontamination. At most three
+  ordered MLP attempts; first noncollapsed dev router only. Local FP16 teacher
+  block NMSE at fixed8 student inputs, exact per-type quotas, and train-optimized
+  static/random controls. No final-score-driven revision.
+- D-027 **Review repair before fitting**: mask train-constant feature coordinates
+  at both fit and inference. Otherwise the128-token log-length feature would
+  activate untrained weights at variable-length MC evaluation. Independent
+  reviewer finding retained in `results/core-v1/meta/router-protocol-review-full.md`;
+  synthetic normalization regression test passes.18 total CPU tests pass.
+
 ## Historical proposal log
 
 Statuses:

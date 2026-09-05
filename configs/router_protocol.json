@@ -1,0 +1,25 @@
+{
+  "protocol_id": "qaq-router-v1",
+  "extends": "qaq-core-v1",
+  "data_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+  "data_id": "Salesforce/wikitext",
+  "splits": {"train": 192, "validation": 32},
+  "data_seed": 2718,
+  "window_tokens": 512,
+  "context_tokens": 128,
+  "dedup_span_tokens": 32,
+  "feature_groups": 64,
+  "attempts": [
+    {"name": "A1", "groups": 32, "hidden": 32, "objective": "log_nmse"},
+    {"name": "A2", "groups": 64, "hidden": 64, "objective": "log_nmse"},
+    {"name": "A3", "groups": 64, "hidden": 64, "objective": "oracle_ce"}
+  ],
+  "training": {"seed_base": 31415, "epochs": 300, "lr": 0.003, "weight_decay": 0.01, "gradient_clip": 1.0, "std_floor": 0.00001},
+  "quota_per_type": {"4": 12, "6": 12, "8": 12},
+  "noncollapse": {"min_unique_profiles": 4, "max_profile_fraction": 0.9, "min_varying_blocks_per_type": 2},
+  "random_seed": 1618,
+  "bootstrap": {"seed": 4242, "draws": 10000, "confidence": 0.95},
+  "limits": {"gpu_job_minutes": 30, "gpu_peak_bytes": 20000000000, "cpu_fit_minutes": 10, "collection_smoke_per_split": 2},
+  "comparison_modes": ["adaptive", "static", "random"],
+  "final_repeats": 2
+}

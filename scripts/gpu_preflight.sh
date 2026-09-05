@@ -6,11 +6,10 @@
 
 set -euo pipefail
 
-if [[ ! -f "$HOME/.venv/bin/activate" ]]; then
-  echo "Expected virtual environment at ~/.venv; refusing to continue." >&2
+if [[ -z "${VIRTUAL_ENV:-}" ]]; then
+  echo "Activate a virtual environment before running this script." >&2
   exit 2
 fi
-source "$HOME/.venv/bin/activate"
 
 minimum_free_mib="${QAQ_MIN_FREE_MIB:-20000}"
 mode="report"

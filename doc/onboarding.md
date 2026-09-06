@@ -4,9 +4,10 @@
 
 Provides a locally verified QAQ core mechanism for Qwen/Qwen3-4B: one nested
 signed/scaled checkpoint, independent attention/FFN precisions and a small
-query-dependent router. It does not reproduce the paper table or loader.
-The final report records a narrow improvement over our static surrogate policy,
-with materially worse WT2 quality than random routing. The bounded study is closed.
+query-dependent router. A separate completed study replays the frozen profiles
+through packed two's-complement resident and synchronous on-demand storage. It
+does not reproduce the paper table or provide a low-bit compute kernel. The core
+quality study and storage study are both closed.
 
 ## Quickstart
 
@@ -16,27 +17,30 @@ On the recorded host, from the repo root:
 source ~/.venv/bin/activate
 CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python -m unittest discover -s tests -v
 CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_router_results.py
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_on_demand.py --stage repeats
 ```
 
-Expected:20 tests pass, evidence checks pass, narrow adaptive-versus-static
-criterion passes. All negative-control comparisons remain in the JSON report.
-The second command needs the existing ignored `results/core-v1/` bundle and
-source parquet/model-tokenizer cache paths recorded in its manifests. It uses
-CPU only. Do not interpret a code-only checkout as containing these artifacts.
+Expected:24 tests pass and both evidence checks pass. The audit commands need
+the ignored `results/core-v1/` and `results/on-demand-v1/` bundles. They use CPU
+only. Do not interpret a code-only checkout as containing these artifacts.
 
 ## Important Files
 
 | File/directory | Role |
 |---|---|
-| `REPLICATION_REPORT.md`, `COMPLETION_AUDIT.md` | Findings and requirement-by-requirement evidence |
-| `EVALUATION_PROTOCOL.md`, `ROUTER_PROTOCOL.md` | Frozen methodology, caps and stop rules |
+| `REPLICATION_REPORT.md`, `COMPLETION_AUDIT.md` | Closed core findings and requirement-by-requirement evidence |
+| `ON_DEMAND_PROTOCOL.md`, `ON_DEMAND_REPORT.md` | Separate packed-storage protocol and measured findings |
+| `EVALUATION_PROTOCOL.md`, `ROUTER_PROTOCOL.md` | Frozen core methodology, caps and stop rules |
 | `configs/core_protocol.json`, `configs/router_{protocol,data_lock}.json` | Exact settings and frozen split seal |
 | `src/qaq/evaluation.py` | Custom WT2/MC scorer; not lm_eval execution |
 | `src/qaq/quantization.py`, `src/qaq/model.py` | Signed int8 scales, high-bit midpoint reconstruction,72 blocks |
+| `src/qaq/on_demand.py` | Eight packed planes, shared unpack/reconstruct, one-block slot |
 | `src/qaq/router.py` | Features/local teacher replay,72 small MLPs, quota solver |
-| `scripts/prepare_router.py`, `scripts/train_router.py`, `scripts/router_job.py` | Prepare, fit and GPU-stage commands |
-| `scripts/check_{baselines,router_results}.py` | CPU evidence and comparison audits |
+| `scripts/prepare_router.py`, `scripts/train_router.py`, `scripts/router_job.py` | Prepare, fit and core GPU-stage commands |
+| `scripts/run_on_demand.py`, `scripts/check_on_demand*.py` | Guarded storage runner and CPU/pair gates |
+| `scripts/check_{baselines,router_results}.py` | CPU core evidence and comparison audits |
 | `results/core-v1/` | Frozen data, one model, router, raw scores/routes, command/source snapshots |
+| `results/on-demand-v1/` | CPU gate, smoke/full pairs, transfer traces, hardware and source snapshots |
 | `doc/runbook.md`, `doc/debug-report.md` | Command details, failures and rotary-buffer repair |
 
 ## Architecture Map
@@ -48,8 +52,10 @@ NestedLinear precision → causal suffix/option likelihoods → all metrics/raw 
 Training replays local FP16 and4/6/8 blocks at the same fixed8 input; only the
 small router receives gradients. Static uses mean **training** local errors;
 random uses one frozen seed and context hash. All matched controls pay the probe
-and exactly six scoring bits. The single model stores int8 codes/FP32 scales;
-FP16 reconstructed caches are transient, not physical4/6-bit GPU storage.
+and exactly six scoring bits. The single core model stores int8 codes/FP32 scales. The separate storage path
+packs each code into eight physical planes, replays the saved profiles, and uses
+either all-plane GPU residence or CPU sources plus one synchronous block slot.
+Both unpack to uncached FP16 weights for the same ordinary matrix multiplication.
 
 ## Development Workflow
 
@@ -63,12 +69,15 @@ this handoff. Keep one writer and one guarded GPU job at a time.
 
 ## Testing
 
-The quickstart suite covers20 CPU tests; baseline/integration/actual trained
-routing evidence is separate. `scripts/check_router_results.py` retokenizes the
+The quickstart suite covers24 CPU tests, including all signed codes, padded
+packing, exact tiny-Qwen modes and exception release. Baseline/integration/actual
+trained routing evidence is separate. `scripts/check_router_results.py` retokenizes the
 selected router windows, checks no exact32-token overlap, verifies train-only
 normalization/static policy, recomputes profiles/metrics/budgets and paired CIs,
-and demands exact raw repeats. It does not replace review of paper claims,
-GPU guard logs, exclusions or the final report; see the completion audit.
+and demands exact raw repeats. `scripts/check_on_demand.py --stage repeats`
+rehashes paired source/hardware/profile/sample/transfer artifacts and the three
+accepted hardware-matched pairs. Neither verifier replaces review of paper
+claims, GPU guard logs, exclusions or the reports.
 
 ## Troubleshooting
 
@@ -81,6 +90,9 @@ GPU guard logs, exclusions or the final report; see the completion audit.
   later recheck, and use a separate retry log; never bypass or signal processes.
 - Output exists: the script intentionally refuses overwriting. Inspect existing
   artifacts. A genuinely new authorized run needs a new output directory.
+- On-demand runner rejects the CPU/smoke gate: current runnable-source hashes no
+  longer match the completed run snapshot. Audit existing evidence; any new
+  study iteration needs new append-only CPU/smoke gates rather than bypassing it.
 - Reload differs: retain actual nonpersistent rotary buffers. Do not relax exact
   equality or strip checkpoint data; see `doc/debug-report.md`.
 

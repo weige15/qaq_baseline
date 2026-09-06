@@ -153,13 +153,16 @@ def main() -> None:
 
     smoke = json.loads(Path(args.smoke_gate).read_text())
     assert smoke["passed"] and smoke["repeat_authorized"]
-    pairs = [check_pair(ROOT / f"repeat-{repeat_id}-resident",
-                        ROOT / f"repeat-{repeat_id}-ondemand_sync", 64, False)
-             for repeat_id in (1, 2, 3)]
+    accepted_ids = ("1b", "2b", "3")
+    pairs = [check_pair(ROOT / f"repeat-{run_id}-resident",
+                        ROOT / f"repeat-{run_id}-ondemand_sync", 64, False)
+             for run_id in accepted_ids]
     assert all(pair["source_manifest_sha256"] == smoke["source_manifest_sha256"]
                for pair in pairs)
-    resident_samples = [jsonl(ROOT / f"repeat-{i}-resident/samples.jsonl") for i in (1, 2, 3)]
-    ondemand_samples = [jsonl(ROOT / f"repeat-{i}-ondemand_sync/samples.jsonl") for i in (1, 2, 3)]
+    resident_samples = [jsonl(ROOT / f"repeat-{run_id}-resident/samples.jsonl")
+                        for run_id in accepted_ids]
+    ondemand_samples = [jsonl(ROOT / f"repeat-{run_id}-ondemand_sync/samples.jsonl")
+                        for run_id in accepted_ids]
     assert resident_samples[0] == resident_samples[1] == resident_samples[2]
     assert ondemand_samples[0] == ondemand_samples[1] == ondemand_samples[2]
     protocol = json.loads(Path("configs/on_demand_protocol.json").read_text())
@@ -169,9 +172,9 @@ def main() -> None:
     assert resident_samples[0] == ondemand_samples[0] == expected
     passed = all(pair["outputs_exact"] and pair["ondemand_peak_is_lower"] for pair in pairs)
     commands = {}
-    for repeat_id in (1, 2, 3):
+    for repeat_id, run_id in enumerate(accepted_ids, 1):
         for mode in ("resident", "ondemand_sync"):
-            path = ROOT / f"repeat-{repeat_id}-{mode}" / "command.json"
+            path = ROOT / f"repeat-{run_id}-{mode}" / "command.json"
             commands[(repeat_id, mode)] = json.loads(path.read_text())
     run_ids = [command["run_uuid"] for command in commands.values()]
     starts = [command["started_unix"] for command in commands.values()]
@@ -179,10 +182,20 @@ def main() -> None:
     assert commands[(1, "resident")]["started_unix"] < commands[(1, "ondemand_sync")]["started_unix"]
     assert commands[(2, "ondemand_sync")]["started_unix"] < commands[(2, "resident")]["started_unix"]
     assert commands[(3, "resident")]["started_unix"] < commands[(3, "ondemand_sync")]["started_unix"]
+    rejected = []
+    for run_id in ("1", "2"):
+        resident_hardware = json.loads((ROOT / f"repeat-{run_id}-resident/hardware.json").read_text())
+        ondemand_hardware = json.loads((ROOT / f"repeat-{run_id}-ondemand_sync/hardware.json").read_text())
+        assert resident_hardware["properties"] != ondemand_hardware["properties"]
+        rejected.append({"candidate": run_id, "reason": "physical_gpu_identity_mismatch",
+                         "resident_properties": resident_hardware["properties"],
+                         "ondemand_properties": ondemand_hardware["properties"]})
     gate = {
         "stage": "three_paired_wikitext2_repeats",
         "passed": passed,
         "pairs": pairs,
+        "accepted_directory_ids": list(accepted_ids),
+        "rejected_pairing_candidates": rejected,
         "cross_repeat_samples_exact": True,
         "exact_to_completed_core_wikitext_samples": True,
         "distinct_fresh_run_ids": True,

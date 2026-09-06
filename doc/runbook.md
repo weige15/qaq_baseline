@@ -2,10 +2,10 @@
 
 ## Project Summary
 
-Closed, bounded Qwen/Qwen3-4B QAQ core reproduction. Start with
-`REPLICATION_REPORT.md`; adaptive narrowly beats the declared local-error static
-policy, but random has substantially better WT2 perplexity. No further search
-against these final examples is authorized.
+Closed, bounded Qwen/Qwen3-4B QAQ core reproduction plus a separate completed
+synchronous packed-plane storage study. Start with `REPLICATION_REPORT.md` for
+quality findings and `ON_DEMAND_REPORT.md` for storage/memory/timing findings.
+No further search against the frozen examples is authorized.
 
 ## Setup
 
@@ -70,6 +70,26 @@ shell/preflight output and exits in `logs/*.log`. Smoke runtime projections were
 saved before full runs. Successful model jobs use one process-free24GiB RTX3090;
 router stages peaked<=13.05GB allocated. No performance-kernel claim.
 
+The separately authorized storage study is complete; these commands document it,
+not a request to overwrite existing outputs:
+
+```bash
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_on_demand_cpu.py \
+  --out results/on-demand-v1/cpu-gate
+PYTHONPATH=src CUBLAS_WORKSPACE_CONFIG=:4096:8 TOKENIZERS_PARALLELISM=false \
+  bash scripts/gpu_preflight.sh --run timeout --signal=TERM 30m \
+  python scripts/run_on_demand.py --mode resident --smoke \
+  --out results/on-demand-v1/smoke-resident
+```
+
+Replace `resident` with `ondemand_sync` and use a unique output for the other
+mode. Full runs omit `--smoke`; the protocol fixes three AB/BA/AB pairs. Inputs
+are the existing core checkpoint/examples/routes plus a matching CPU and smoke
+gate. Success writes `command.json`, `hardware.json`, `source_manifest.json`,
+`profiles.json`, `samples.jsonl`, `transfer_events.jsonl`, and `results.json`.
+Actual jobs took about250–265s startup plus57–127s evaluation, all under30min.
+Do not rerun unless a new authorized append-only study is declared.
+
 ## Test
 
 ```bash
@@ -77,7 +97,7 @@ CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python -m unittest discover -s tests -v
 git diff --check
 ```
 
-Expected20 passing CPU tests. Exact full-model integration/genuine routed output
+Expected24 passing CPU tests. Exact full-model integration/genuine routed output
 checks were already executed through the guard; inspect `integration/` and
 `router-verify/`, do not confuse the tiny unit model with those actual GPU gates.
 There is no configured lint/type-check/build/CI job for the full inference stack.
@@ -87,14 +107,18 @@ There is no configured lint/type-check/build/CI job for the full inference stack
 ```bash
 CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_baselines.py
 CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_router_results.py
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_on_demand.py --stage repeats
 python scripts/audit_table.py
 ```
 
 The first reaggregates fresh fixed baselines; the second additionally audits
 split hashes/tokenization, train-only normalizers/static costs, stored trained
 router decisions, every final raw metric/trace/budget, exact repeats and the
-frozen paired bootstrap. They update summary JSONs without changing raw runs.
-The third verifies paper-table arithmetic only. No GPU is used.
+frozen paired bootstrap. The on-demand checker verifies the accepted three
+hardware-matched pairs, source snapshots, profiles, raw outputs, byte counters,
+loads/releases and memory reduction. These commands update summary JSONs without
+changing raw runs. The table script verifies paper-table arithmetic only. No GPU
+is used.
 
 Metrics: WT2 `nll_sum`, `scored_tokens`, `mean_nll`, `token_perplexity`,
 `mean_window_nll_stderr`; MC `acc`, `acc_stderr`, `acc_norm`, `acc_norm_stderr`,
@@ -110,6 +134,8 @@ to random; inspect the negative controls in `comparison-gate.json`.
 | Preflight exit3/4 | No safe GPU/availability changed | Corresponding shell log | Pause and later recheck; separate retry log |
 | Output directory exists | Overwrite protection | Existing `command.json`/results | Preserve; new directory only for authorized new run |
 | Frozen hash/runtime mismatch | Input/software drift | Recorded manifest versus actual file | Stop; restore exact version or declare new study |
+| CPU/smoke gate rejected | Runnable source differs from gate snapshot | Gate/source manifests | New append-only CPU/smoke attempt; never bypass |
+| Pair audit hardware mismatch | Preflight selected different physical GPUs | Each `hardware.json` | Retain candidate; make append-only matched reruns |
 | Reload logits differ | Lost actual rotary buffers | `doc/debug-report.md` | Preserve buffers; never relax equality |
 | Noncollapsed but worse quality | Surrogate mismatch/generalization | Final raw comparisons | Report negative controls; no hidden retuning |
 
@@ -131,8 +157,9 @@ refused command. No cleanup command is required or recommended.
 
 ```bash
 git status --short
-find results/core-v1 -name failure.txt -print
+find results/core-v1 results/on-demand-v1 -name failure.txt -print
 sha256sum results/core-v1/integration/quantized_model.pt
+CUDA_VISIBLE_DEVICES='' PYTHONPATH=src python scripts/check_on_demand.py --stage repeats
 ```
 
 Expected model hash:
@@ -150,15 +177,19 @@ this runbook.
 | `results/core-v1/integration/quantized_model.pt` | Single stored weight representation | Int8/scales plus FP16 exclusions |
 | `results/core-v1/router-training/A1/router.pt` | Trained MLP/normalizers | No other attempt selected |
 | `results/core-v1/{baseline,comparison}-*` | Raw metrics/losses/routes | Preserve both complete repeats |
+| `configs/on_demand_protocol.json`, `ON_DEMAND_PROTOCOL.md` | Separate storage settings/gates | Frozen before GPU evidence |
+| `results/on-demand-v1/` | CPU/smoke/full raw storage study | Preserve accepted and rejected pair candidates |
+| `ON_DEMAND_REPORT.md` | Storage measurements and limits | Does not revise core conclusion |
 | `results/core-v1/logs`, `meta` | Commands/refusals/tests/review/audits | Includes failures, not only passes |
 | `COMPLETION_AUDIT.md` | Human requirement audit | No stage verifier substitutes |
 
 ## Operational Notes
 
-No services, ports, credentials or remote inference endpoint. Initial model
-loading is ordinary startup, not on-demand CPU/GPU weight streaming. Adaptive
-and matched controls pay identical8-bit probes and6-bit scoring budgets, but
-reconstruct FP16 matrices. No packed low-bit resident-memory/speed assertion.
+No services, ports, credentials or remote inference endpoint. Core adaptive
+jobs use ordinary startup and no streaming. The separate storage study converts
+the same checkpoint to packed planes at startup and compares resident GPU source
+storage against synchronous CPU source storage with one GPU block slot. Both
+still reconstruct FP16 matrices; there is no custom low-bit compute kernel.
 
 Raw files are intentionally not Git artifacts. The616 core-v1 files plus PDF
 now have a checksum-verified local archive and complete Git bundle at
@@ -170,12 +201,11 @@ not off-host disaster recovery; no clean-host installation was performed.
 
 ## Last Verified
 
-- Date:2026-09-05 UTC (fresh completion/preservation audit after router continuation).
-- Verified again:20-test suite in current and clean-source checkouts, table
-  arithmetic, baseline/comparison/full-artifact CPU audits, exact regeneration
-  of576 final examples, archive member hashes and three-file restore smoke.
-  Logs: `results/completion-20260905T193817Z/`. Original GPU commands above retain
-  their own raw logs; no GPU job was repeated for this follow-up.
-- Known unverified commands: none presented as verified setup commands for a
-  new host; clean installation/portability and restore on another host remain
-  untested. No further GPU job is needed for the existing evidence audit.
+- Date:2026-09-06 UTC.
+- Verified commands:24-test CPU suite; baseline/router preservation audits;
+  on-demand CPU gate; two full-Qwen smoke runs; three accepted paired64-window
+  runs plus retained hardware-mismatched candidates; `check_on_demand.py --stage
+  repeats`; `git diff --check`. Every GPU process used preflight and a30m timeout.
+- Known unverified commands: clean-host installation/portability and restore on
+  another host remain untested. No further GPU run is needed for either closed
+  study.

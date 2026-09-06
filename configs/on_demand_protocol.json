@@ -1,0 +1,87 @@
+{
+  "protocol_id": "qaq-on-demand-v1",
+  "status": "frozen_before_gpu_results",
+  "inherits": {
+    "model_id": "Qwen/Qwen3-4B",
+    "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "checkpoint": "results/core-v1/integration/quantized_model.pt",
+    "checkpoint_sha256": "b63aeeed85e11cea5d2790b1aae068920626e5d93117548358f76ae3b2171b85",
+    "examples": "results/core-v1/frozen/examples.jsonl",
+    "examples_sha256": "5eba9877916a1a473fc9e4987b4a6e1dafbe8cbdbc6fb17519b83d98e3b3aafd",
+    "routes_repeat1": "results/core-v1/comparison-adaptive-r1/routes.json",
+    "routes_repeat1_sha256": "7cfe3e1d2f3e13f01278df336dc4f9a04b7c4d6a85ee72552b667f2f487fd99a",
+    "routes_repeat2": "results/core-v1/comparison-adaptive-r2/routes.json",
+    "routes_repeat2_sha256": "d6734a22136a508c334347cc4924a19cdcacc65e8bd3a8625bed6d454058f351",
+    "core_samples": "results/core-v1/comparison-adaptive-r1/samples.jsonl",
+    "core_samples_sha256": "10368ead4efbab75dbec619b51e0f79a3fde5096ac31e63e6b2023657d5e3acb",
+    "integration_gate": "results/core-v1/integration/gate.json",
+    "integration_gate_sha256": "b7ac0aa610eb3c1bc6ae7d77b84af784616c70b2a4f2ef6004c563f484feba26",
+    "comparison_gate": "results/core-v1/comparison-gate.json",
+    "comparison_gate_sha256": "244a4158ada4768d17f013f2d86f37cc4a39d94e1cfc97f2ad2d5a0c8eac0b05",
+    "router_checkpoint": "results/core-v1/router-training/A1/router.pt",
+    "router_checkpoint_sha256": "7ee189e0516c3d4564da8d83a930ea75b82357af3d68e3e27b1bbd631f7976fc",
+    "router_selection": "results/core-v1/router-training/selection.json",
+    "router_selection_sha256": "4834e4056149a43030e538a76ff894b5912dd744c65c37fe69b70aa40f050739",
+    "canonical_task_index_profile_sha256": "b83498862ef98b5b057896e2b20eb07bd9d414cd11beea31e8d05c623dd8c58d",
+    "core_quantization_source_sha256": "6e671ac3e3b562f977e175ca7696d2e59939cdaeb4cb196b05359d0eab44c1c4",
+    "core_model_source_sha256": "e5c5549a67051972c576b5371403ba24456109b1c4e01a211adb642f98fbe1f9",
+    "core_router_source_sha256": "cef911424c866b04bc5dc15c887d6794c76092630c364bab64725d683b01a028"
+  },
+  "packed_format": {
+    "code": "existing signed int8 two's-complement code, reinterpreted as uint8",
+    "planes": 8,
+    "plane_order": "least-significant code bit through sign bit",
+    "within_byte_order": "flattened code i occupies bit i modulo 8; little bit order",
+    "projection_padding": "zero-pad each projection plane to a whole byte",
+    "selected_planes": "rows 8-b through 7 for b in 4,6,8",
+    "scale": "unchanged existing FP32 group-128 scale",
+    "reconstruction": "unpack selected high planes, clear omitted low bits, sign-extend, then call unchanged qaq.quantization.reconstruct and cast FP16"
+  },
+  "storage_modes": {
+    "resident": "all eight packed planes and every scale stay on GPU; no execution H2D loads",
+    "ondemand_sync": "all source planes/scales stay on ordinary unpinned CPU memory; one reusable maximum-block GPU slot receives selected planes and all current-block scales synchronously; ownership is released after the block"
+  },
+  "evaluation": {
+    "task": "wikitext2",
+    "smoke_examples": 1,
+    "repeat_examples": 64,
+    "sample_order": "unchanged frozen examples order filtered to wikitext2",
+    "profiles": "unchanged saved adaptive task/index profiles; no router execution",
+    "repeats": 3,
+    "pair_order": ["resident_then_ondemand", "ondemand_then_resident", "resident_then_ondemand"],
+    "batch_size": 1,
+    "dtype": "float16",
+    "attention": "sdpa",
+    "deterministic_seed": 1729
+  },
+  "accounting": {
+    "request": "one selected current attention or FFN block payload",
+    "requested_bytes": "ceil(total selected logical plane bits in the block / 8) plus scale tensor bytes",
+    "copied_bytes": "actual selected packed projection-plane tensor bytes including per-projection tail padding plus scale tensor bytes",
+    "load": "one synchronous current-block CPU-to-GPU payload operation, independent of its row-wise copies",
+    "release": "one clearing of on-demand slot ownership after current-block execution",
+    "transfer_time": "perf_counter interval around blocking copies, with CUDA synchronized immediately before the interval and after all copies",
+    "startup": "runner main entry through integrity checks, CPU checkpoint load, packing, dense remainder GPU move, storage placement/slot creation, and final synchronization",
+    "measurement": "after gc, empty_cache, synchronization, peak reset, and counter reset; includes route lookup, scorer/model computation, transfers, CPU loss copy, and raw sample writes; ends after CUDA synchronization"
+  },
+  "gates": {
+    "cpu": "all signed codes plus padded lengths reconstruct torch.equal to qaq.quantization.reconstruct at 4,6,8; invalid inputs fail",
+    "tiny_qwen": "resident and ondemand_sync logits torch.equal existing NestedLinear logits for fixed4/fixed6/fixed8 and a mixed attention/FFN profile; byte/load/release/one-slot and exception release checks pass",
+    "full_smoke": "fresh one-example resident and ondemand_sync raw sample files are exactly equal; ondemand_sync peak allocated bytes is strictly lower; sources/profile/sample/model hashes match",
+    "repeat_authorization": "full smoke passes and projected wall time for each full job is at most 30 minutes",
+    "full_repeats": "three fresh paired 64-window runs preserve exact within-pair raw samples and profiles; all measurements reported without target percentages",
+    "output_mismatch": "stop full repeats and revise loader",
+    "memory_nonreduction": "after confirming no on-demand source plane/scale is GPU resident outside the one slot, stop with evidence"
+  },
+  "limits": {
+    "job_walltime_minutes": 30,
+    "gpu_count": 1,
+    "minimum_free_mib": 20000,
+    "async_prefetch": false,
+    "custom_low_bit_kernel": false,
+    "dynamic_batching": false,
+    "router_retraining": false,
+    "additional_models": false,
+    "score_driven_changes": false
+  }
+}

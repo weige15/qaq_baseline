@@ -1,0 +1,115 @@
+{
+  "batch_sizes": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "blocks": 72,
+  "closed_tag": "qaq-baseline-closed-v1",
+  "compatibility": "oldest seed then minimum resulting total extra selected bits; tie by arrival position; nonoverlapping windows",
+  "decision": {
+    "batch_sizes": [
+      4,
+      8
+    ],
+    "concentration_min_fraction": 0.5,
+    "concentration_top_blocks": 8,
+    "max_largest_profile_fraction": 0.9,
+    "min_arrival_median_extra_percent": 10,
+    "min_recovery_percentage_points": 5,
+    "min_unique_profiles": 4,
+    "min_varying_blocks_per_type": 2,
+    "minimum_orderings": 3
+  },
+  "groupings": [
+    "arrival",
+    "compatibility"
+  ],
+  "initial_head": "b59adbcffc90b870f014d22e142923d569596986",
+  "initial_state_sha256": "d2a46063e9809b9064b9312e6be2dfb8d07ca3a0628373a3ae0513bed7a74e0e",
+  "input_sha256": {
+    "configs/on_demand_protocol.json": "293dfb53fac8eaab2636b45b37339f064bfe5cccca67ce578d7fca6b41400093",
+    "configs/router_protocol.json": "0d722bd7cdb096d73378fb9a50d9048dddfec9e4c3207121a9ace2672d052fd1",
+    "results/core-v1/baseline-fixed8-r1/quantized_modules.json": "bb7300f5a4242fc3d5e21dfb4ad2e72f2badc492da49506606b7bd3238cf8acc",
+    "results/core-v1/comparison-adaptive-r1/command.json": "73f8cbdc5d47cd1890b66cdbf8cbf2a6b2f495b3df28ce8b6e7489206384b2e1",
+    "results/core-v1/comparison-adaptive-r1/results.json": "455ab9784e34487c6cf7893ebc96810a05284d7038907640565cc9111da90d8d",
+    "results/core-v1/comparison-adaptive-r1/routes.json": "7cfe3e1d2f3e13f01278df336dc4f9a04b7c4d6a85ee72552b667f2f487fd99a",
+    "results/core-v1/comparison-adaptive-r1/samples.jsonl": "10368ead4efbab75dbec619b51e0f79a3fde5096ac31e63e6b2023657d5e3acb",
+    "results/core-v1/comparison-adaptive-r2/command.json": "1f67e1c12847cb64e2e364a9f30630e8fe1725a2711bdfafe38360e846b5f590",
+    "results/core-v1/comparison-adaptive-r2/results.json": "1271d424dc7732d82e7da1e961ed513663b78407fc77f4c230f0250ae10fd24c",
+    "results/core-v1/comparison-adaptive-r2/routes.json": "d6734a22136a508c334347cc4924a19cdcacc65e8bd3a8625bed6d454058f351",
+    "results/core-v1/comparison-adaptive-r2/samples.jsonl": "10368ead4efbab75dbec619b51e0f79a3fde5096ac31e63e6b2023657d5e3acb",
+    "results/core-v1/comparison-gate.json": "244a4158ada4768d17f013f2d86f37cc4a39d94e1cfc97f2ad2d5a0c8eac0b05",
+    "results/core-v1/comparison-random-r1/command.json": "ade302b8ef0e5e25cfbb5181ae0fb47c1a1d64f93b088caa5145591e1c55f38d",
+    "results/core-v1/comparison-random-r1/results.json": "464423e260685ef42d738412711b2d6c7dd2001fc8a0052296b151a2f6be6b07",
+    "results/core-v1/comparison-random-r1/routes.json": "277ab1c22ff167612b641a8d33ad2cff78958beffaac27b563457b902759b621",
+    "results/core-v1/comparison-random-r1/samples.jsonl": "41292a2296d911118bb5dea7ef6787fdca13f571437c0b0a77d0b6172bcd7705",
+    "results/core-v1/comparison-random-r2/command.json": "ea7097630fd6d468506386b3117cad6fccef992bf2922700ba4a2a8c35e11632",
+    "results/core-v1/comparison-random-r2/results.json": "ff7ea113e3ed70d314130fbacae04cf7205004936dd51c7d5dccefe30a0457f8",
+    "results/core-v1/comparison-random-r2/routes.json": "8d1b2ca91d9c6446c3237e757f08d4ef3fb18821ac1b845085c20ed55019687e",
+    "results/core-v1/comparison-random-r2/samples.jsonl": "41292a2296d911118bb5dea7ef6787fdca13f571437c0b0a77d0b6172bcd7705",
+    "results/core-v1/comparison-static-r1/command.json": "587735755cb16ffd251a75fc383998cbb8c72061178375bc5ffea021a36308c5",
+    "results/core-v1/comparison-static-r1/results.json": "1d8f5c843de8939a8e507bb647e292606b12bfe3893f0bac1f8470d95c5c0999",
+    "results/core-v1/comparison-static-r1/routes.json": "d49f98da0f345c2f64a86030f6cb429c26a6e8e65caf061fafd47d62a700b2f0",
+    "results/core-v1/comparison-static-r1/samples.jsonl": "4a2d9d9e4c987b8189a8acd866c959c44b0f73130a4b4be048fa93e03fc9b7cf",
+    "results/core-v1/comparison-static-r2/command.json": "11a4df6544213deacd2b12cbc047069665412f16bb8465a50ffaedf8df3fa519",
+    "results/core-v1/comparison-static-r2/results.json": "761628c524e229e5be9cf9ad99f06a375d7bfc1d95b1a042fdd2a1edb6dc3efe",
+    "results/core-v1/comparison-static-r2/routes.json": "ea735e38d0233b4a933ec770690dae8b417cf33bc25e0715bd745c89ac4fb9e6",
+    "results/core-v1/comparison-static-r2/samples.jsonl": "4a2d9d9e4c987b8189a8acd866c959c44b0f73130a4b4be048fa93e03fc9b7cf",
+    "results/core-v1/frozen/examples.jsonl": "5eba9877916a1a473fc9e4987b4a6e1dafbe8cbdbc6fb17519b83d98e3b3aafd",
+    "results/core-v1/integration/gate.json": "b7ac0aa610eb3c1bc6ae7d77b84af784616c70b2a4f2ef6004c563f484feba26",
+    "results/core-v1/integration/quantized_model.pt": "b63aeeed85e11cea5d2790b1aae068920626e5d93117548358f76ae3b2171b85",
+    "results/core-v1/router-training/A1/router.pt": "7ee189e0516c3d4564da8d83a930ea75b82357af3d68e3e27b1bbd631f7976fc",
+    "results/core-v1/router-training/selection.json": "4834e4056149a43030e538a76ff894b5912dd744c65c37fe69b70aa40f050739",
+    "src/qaq/model.py": "e5c5549a67051972c576b5371403ba24456109b1c4e01a211adb642f98fbe1f9",
+    "src/qaq/quantization.py": "6e671ac3e3b562f977e175ca7696d2e59939cdaeb4cb196b05359d0eab44c1c4",
+    "src/qaq/router.py": "cef911424c866b04bc5dc15c887d6794c76092630c364bab64725d683b01a028"
+  },
+  "max_displacement_positions": 15,
+  "max_readiness_wait_positions": 15,
+  "model_id": "Qwen/Qwen3-4B",
+  "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "modes": [
+    "adaptive",
+    "static",
+    "random"
+  ],
+  "ordering_hash_prefix": "qaq-batch-v1",
+  "orderings": [
+    "saved",
+    "reverse",
+    "sha256"
+  ],
+  "populations": {
+    "arc_challenge": 256,
+    "hellaswag": 256,
+    "pooled": 576,
+    "wikitext2": 64
+  },
+  "precisions": [
+    4,
+    6,
+    8
+  ],
+  "primary_mode": "adaptive",
+  "primary_population": "pooled",
+  "protocol_id": "qaq-batch-interference-v1",
+  "quota_per_type": {
+    "4": 12,
+    "6": 12,
+    "8": 12
+  },
+  "route_repeat_ignored_fields": [
+    "probe_seconds"
+  ],
+  "scope": {
+    "cpu_only": true,
+    "performance_inference": false,
+    "quality_inference": false,
+    "run_gpu": false,
+    "scheduler": false
+  },
+  "status": "frozen_before_new_aggregates",
+  "window_requests": 16
+}

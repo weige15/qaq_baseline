@@ -1,0 +1,96 @@
+{
+  "adaptive_route_timing_fields": [
+    "probe_seconds"
+  ],
+  "baseline_timing_fields": [
+    "eval_seconds",
+    "total_seconds"
+  ],
+  "bootstrap": {
+    "confidence": 0.95,
+    "draws": 10000,
+    "generator": "numpy.default_rng/PCG64",
+    "quantile_method": "linear",
+    "reset_per_task": true,
+    "seed": 4242,
+    "selection": "rerank unchanged scores within paired draw; exact half fixed8 occurrences"
+  },
+  "budgets": [
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "deterministic_salts": [
+    1729,
+    2718,
+    31415
+  ],
+  "historical_inventory": "results/batch-interference-v1/preflight/initial-state.json",
+  "historical_inventory_sha256": "d2a46063e9809b9064b9312e6be2dfb8d07ca3a0628373a3ae0513bed7a74e0e",
+  "id_hash_format": "{salt}:{task}:{index}",
+  "initial_state_sha256": "fd21426a7d32ab7154098bedd05527d86a0ce9c2e7569028e08cf81fa3de63f3",
+  "input_sha256": {
+    "results/core-v1/baseline-fixed4-r1/command.json": "73bfc0cf3d58f920b52a54296daa91a01687a046c471f75b3c7cb1a0df8a9f0e",
+    "results/core-v1/baseline-fixed4-r1/quantized_modules.json": "eb0d26749c068e0f99f1b154d79ce54e13514c3ccad79ce35b57c289755318ff",
+    "results/core-v1/baseline-fixed4-r1/results.json": "a8db6fa4c633b216ab9ea36bd22a916e4c8d8838ca6aa00cf7f9240c5c7fb19e",
+    "results/core-v1/baseline-fixed4-r1/samples.jsonl": "4d1362ba6c4a4aba9eeb4194420a7b7b248100747358f9698861505952149c9c",
+    "results/core-v1/baseline-fixed4-r2/command.json": "4f45fdb5060b300ae76caf76e1528fd8f0d40f9d14db42aa5dbb137ff99137d5",
+    "results/core-v1/baseline-fixed4-r2/quantized_modules.json": "eb0d26749c068e0f99f1b154d79ce54e13514c3ccad79ce35b57c289755318ff",
+    "results/core-v1/baseline-fixed4-r2/results.json": "c2dd748f925fdbe767cbb8adb5fde1a4718f8000ec82bae795ef6ce03349ecd3",
+    "results/core-v1/baseline-fixed4-r2/samples.jsonl": "4d1362ba6c4a4aba9eeb4194420a7b7b248100747358f9698861505952149c9c",
+    "results/core-v1/baseline-fixed8-r1/command.json": "e95ac373a07ec0b5d8509c263b22e6b36ebeb0aa0d0edfca8f65eb3edb30ac50",
+    "results/core-v1/baseline-fixed8-r1/quantized_modules.json": "bb7300f5a4242fc3d5e21dfb4ad2e72f2badc492da49506606b7bd3238cf8acc",
+    "results/core-v1/baseline-fixed8-r1/results.json": "85d8748ba32f65ebb26f21f27c15b2f2f900cb730588cd1a28b17cec70ca8d58",
+    "results/core-v1/baseline-fixed8-r1/samples.jsonl": "7c66ffc7b9d085db281981aaac414e3ac0daf4ecd97506fe87f833bac694299b",
+    "results/core-v1/baseline-fixed8-r2/command.json": "a57b19bcdc3cbe0ae89ac0b4b788fd07e78729f843e3d730550fbc162b74e926",
+    "results/core-v1/baseline-fixed8-r2/quantized_modules.json": "bb7300f5a4242fc3d5e21dfb4ad2e72f2badc492da49506606b7bd3238cf8acc",
+    "results/core-v1/baseline-fixed8-r2/results.json": "6668d4d20c0fc7e8488f37825eb64625fc68ea0854637cc2e2aa7e51a27d1e68",
+    "results/core-v1/baseline-fixed8-r2/samples.jsonl": "7c66ffc7b9d085db281981aaac414e3ac0daf4ecd97506fe87f833bac694299b",
+    "results/core-v1/comparison-adaptive-r1/command.json": "73f8cbdc5d47cd1890b66cdbf8cbf2a6b2f495b3df28ce8b6e7489206384b2e1",
+    "results/core-v1/comparison-adaptive-r1/results.json": "455ab9784e34487c6cf7893ebc96810a05284d7038907640565cc9111da90d8d",
+    "results/core-v1/comparison-adaptive-r1/routes.json": "7cfe3e1d2f3e13f01278df336dc4f9a04b7c4d6a85ee72552b667f2f487fd99a",
+    "results/core-v1/comparison-adaptive-r2/command.json": "1f67e1c12847cb64e2e364a9f30630e8fe1725a2711bdfafe38360e846b5f590",
+    "results/core-v1/comparison-adaptive-r2/results.json": "1271d424dc7732d82e7da1e961ed513663b78407fc77f4c230f0250ae10fd24c",
+    "results/core-v1/comparison-adaptive-r2/routes.json": "d6734a22136a508c334347cc4924a19cdcacc65e8bd3a8625bed6d454058f351",
+    "results/core-v1/frozen/data_manifest.json": "4d6f407f39ac70ca21014ebf9bfa7e0feef8ff3a67a1cf6a29d89600c9ff20b5",
+    "results/core-v1/frozen/environment.json": "fc4b47faf9d259bdb257c1171630e23436bbe4a1d429c696a6ec86bfe0cde8b7",
+    "results/core-v1/frozen/examples.jsonl": "5eba9877916a1a473fc9e4987b4a6e1dafbe8cbdbc6fb17519b83d98e3b3aafd",
+    "results/core-v1/frozen/freeze_hashes.json": "e6352880154f85be841e1f84b990b0d359d5ec861079e81938d9e35fc239df20",
+    "results/core-v1/frozen/model_manifest.json": "570decb2d9ff93af9ff2c7558698ab8e27d2c147c4e1bbc75952148ae3b48b3d",
+    "results/core-v1/frozen/protocol.json": "251b6a13a1a19497e489e2610ad8980f418f061bc563471b400a822f98d1a702",
+    "results/core-v1/integration/command.json": "ddd015f8beb827fef2d54d251ca312798287a30deaab872141960ee193b38205",
+    "results/core-v1/integration/gate.json": "b7ac0aa610eb3c1bc6ae7d77b84af784616c70b2a4f2ef6004c563f484feba26"
+  },
+  "primary_budget": 6,
+  "primary_score": "math.fsum(parameters[b] * (costs[b][0] - costs[b][2]) for b) / sum(parameters)",
+  "prompt_length_direction": "descending",
+  "protocol_id": "qaq-query-budget-feasibility-v1",
+  "ranking_ties": [
+    "task_ascending",
+    "integer_index_ascending",
+    "bootstrap_draw_position_ascending"
+  ],
+  "screening": {
+    "interval_lower_strictly_above": 0.0,
+    "material_improvement": 0.01,
+    "minimum_opportunity_tasks": 2,
+    "minimum_recovered_tasks": 2,
+    "minimum_router_recovery": 0.25
+  },
+  "tasks": {
+    "arc_challenge": {
+      "count": 256,
+      "primary_metric": "acc_norm"
+    },
+    "hellaswag": {
+      "count": 256,
+      "primary_metric": "acc_norm"
+    },
+    "wikitext2": {
+      "count": 64,
+      "primary_metric": "mean_nll"
+    }
+  }
+}
